@@ -8,6 +8,7 @@ class Program
 
     static LogHistory log = new LogHistory();
 
+    static List<string> Catagory = new List<string>();
     static List<IReportExtension> extensions = new List<IReportExtension>();
     static async Task Main()
     {
@@ -94,7 +95,13 @@ class Program
                 var attribute = type.GetCustomAttribute(typeof(BootCampReportExtensionAttribute));
                 if (attribute != null && typeof(IReportExtension).IsAssignableFrom(type))
                 {
-                    extensions.Add((IReportExtension)Activator.CreateInstance(type));
+                    var ext = (IReportExtension)Activator.CreateInstance(type);
+                    extensions.Add(ext);
+
+                    if (!Catagory.Contains(ext.Catagory))
+                    {
+                        Catagory.Add(ext.Catagory);
+                    }
                 }
             }
         }
@@ -107,10 +114,40 @@ class Program
     {
 
         // -------------------------   Select a report   ------------------------- 
-        var reportNames = GetReportNames();
+
+        Console.Clear();
+        Console.WriteLine($"=== Bootcamp Reporter ::");
+
+        //-----------------Catagory------------------
+
+        Console.WriteLine("\n Select Catagory:");
+
+        for (int i = 0; i < Catagory.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}. {Catagory[i]}");
+        }
+        Console.WriteLine($"{Catagory.Count + 1}. Back");
+
+
+
+
+        int CatagoryIndex;
+        while (!int.TryParse(Console.ReadLine(), out CatagoryIndex))
+        {
+            Console.Write("Invalid input");
+        }
+
+
+        if (CatagoryIndex == Catagory.Count + 1)
+            return;
+
+
         Console.Clear();
         Console.WriteLine($"=== Bootcamp Reporter ::");
         Console.WriteLine("\nSelect a report: ");
+
+
+        var reportNames = GetReportNames(CatagoryIndex);
 
         for (int i = 0; i < reportNames.Count; i++)
         {
@@ -146,14 +183,14 @@ class Program
         }
     }
 
-    static List<string> GetReportNames()
+    static List<string> GetReportNames(int index)
     {
         List<string> reportNames = new List<string>();
 
 
         foreach (var ext in extensions)
         {
-            if (ext.Enabled)
+            if (ext.Enabled && ext.Catagory == Catagory[index - 1])
             {
                 string reportName = ext.GetReportName();
                 reportNames.Add(reportName);
