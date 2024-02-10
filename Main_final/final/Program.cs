@@ -164,6 +164,8 @@ class Program
             Console.Write("Invalid input");
         }
 
+
+
         if (reportIndex == reportNames.Count + 1)
             return;
 
@@ -173,7 +175,7 @@ class Program
         Console.WriteLine($"Result of '{selectedReport}':");
 
         // Execute selected report extension
-        ExecuteReportExtension(selectedReport);
+        ExecuteReportExtension(reportIndex, CatagoryIndex);
 
         Console.WriteLine("\n1. Back");
         Console.Write("\nSelect option: ");
@@ -275,27 +277,17 @@ class Program
         }
     }
 
-    static void ExecuteReportExtension(string reportName)
+    static void ExecuteReportExtension(int reportIndex, int catagoryIndex)
     {
-        Assembly extensionAssembly = Assembly.LoadFrom("plugins/Extentions.dll");
 
-        Type[] types = extensionAssembly.GetTypes();
+        string catagory = Catagory[catagoryIndex - 1];
 
-        foreach (var ext in extensions)
-        {
+        var cur = extensions.Where(e => e.Catagory == catagory).ToList()[reportIndex - 1];
 
-            string Name = ext.GetReportName();
+        var result = cur.Execute();
+        Console.WriteLine(result);
+        log.AddLog(cur.GetReportName());
 
-            if (Name == reportName)
-            {
-                string result = ext.Execute();
-                log.AddLog(reportName);
-                Console.WriteLine(result);
-
-                break;
-            }
-
-        }
     }
 
 }
